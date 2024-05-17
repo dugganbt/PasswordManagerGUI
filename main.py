@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import pyperclip
+import json
 
 LABEL_FONT = ("Helvetica", 12)
 
@@ -43,6 +44,12 @@ def save_login():
     website_entry = website_entry_field.get()
     email_entry = email_user_field.get()
     password_entry = password_field.get()
+    new_data = {
+        website_entry: {
+            "email: ": email_entry,
+            "password": password_entry
+        }
+    }
 
     # check if all fields have an entry
     if website_entry=="" or email_entry=="" or password_entry=="":
@@ -55,9 +62,20 @@ def save_login():
                                                                 f"\npassword: {password_entry} \nIs it ok to save? ")
 
         if confirmed_save:
-            # save values into the txt file
-            with open("data.txt", "a") as file:
-                file.write(f"{website_entry} | {email_entry} | {password_entry} \n")
+
+            try:
+                # loading & updating the password
+                with open("data.json", "r") as file:
+                    data = json.load(file) # reading old data
+            except FileNotFoundError:
+                # saving the password
+                with open("data.json", "w") as file:
+                    json.dump(new_data, file, indent=4) # saving updated data
+            else:
+                data.update(new_data)  # updating new data
+                with open("data.json", "w") as file:
+                    json.dump(data, file, indent=4) # saving updated data
+            finally:
                 website_entry_field.delete(0, END)
                 password_field.delete(0, END)
 
